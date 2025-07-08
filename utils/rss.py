@@ -1,0 +1,13 @@
+import feedparser
+
+def get_latest_rss_summaries():
+    feed_url = "https://api.media-meter.com/v1/article_rss_feed?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYXRlZ29yeV9vYmpfaWQiOiI2M2VkNzc3NzVmNmVjMjhkYzU3MDVjNjMiLCJkYXRlX3B1Ymxpc2hfc3RhcnQiOiIyMDI1LTAxLTAxIDAwOjAwOjAwIiwiZGF0ZV9wdWJsaXNoX2VuZCI6IjIwMjUtMTItMzEgMjM6NTk6NTkiLCJwbGF0Zm9ybSI6Im1lZGlhd2F0Y2giLCJmaWVsZF9uYW1lcyI6WyJsYW5ndWFnZSIsImJ1Y2tldCIsImNhdGVnb3J5IiwicGFyZW50X2F1dGhvcnMiLCJjaGlsZF9hdXRob3JzIiwidGl0bGUiLCJjb250ZW50IiwicHVibGlzaGVyIiwiYXJ0aWNsZV9jbGVhbl91cmwiLCJmb2N1cyIsIm1lZGlhX3ZhbHVlIiwic2VjdGlvbiIsImVudGl0aWVzIiwic3RvcnlfdmFsdWVzIiwibWVkaWFfc291cmNlIiwibWFpbl9tZW50aW9ucyIsInRvdGFsX21lbnRpb25zIiwibWF2X3NlZ21lbnRfdHlwZSIsIm1hdl9zZWdtZW50X2xlbmd0aCIsImF1ZGlvX3ZpZGVvX3Byb2dyYW0iLCJhdWRpb192aWRlb19zb3VyY2UiLCJkYXRlX2NyZWF0ZWQiLCJkYXRlX3VwZGF0ZWQiLCJkYXRlX3B1Ymxpc2giLCJhcnRpY2xlX2NsYXNzIiwiZGF0ZV92ZXJpZmllZCIsIndvcmRfY291bnQiLCJjb3VudHJ5Iiwia2V5d29yZHMiLCJhcnRpY2xlX3BhZ2UiLCJhcnRpY2xlX2xpbmsiLCJtZWRfYXJ0X3dob2xlX3BhZ2UiLCJhcnRpY2xlX3VybCIsImFydGljbGVfb2JqX2lkIiwiZmlsZSJdLCJjb3VudHJpZXMiOlsiUEhJTElQUElORVMiXSwiZmlsdGVyX2VtcGhhc2lzIjoiYWxsIiwibWVkaWFfc291cmNlcyI6WyJPbmxpbmUgTmV3cyIsIkJsb2dzIiwiQnJvYWRzaGVldCIsIlByb3ZpbmNpYWwiLCJUYWJsb2lkIiwiTWFnYXppbmUiLCJUViIsIlJhZGlvIl0sInBhZ2UiOjEsInNpemUiOjEwMCwiaXNfdmVyaWZpZWQiOnRydWUsInNvcnRfYnkiOiJkYXRlX3B1Ymxpc2giLCJvcmRlcl9ieSI6ImRlc2MiLCJhY2Nlc3NfdG9rZW4iOiJpZVc4eDFkYTVjcVlaTGFJMFNqTlRWbU9zZWJxR3ZrM0RkbEZwUFFuSEs0aE11QnI3MlVmSlJ6QUJhWG85Q3Q2In0.XDqZAX-Cdp6iUMw0cFIW7srAAjpbhcinkXWJJ3ky8vA"
+    try:
+        feed = feedparser.parse(feed_url)
+        if not feed.entries:
+            return "No latest updates available from the RSS feed."
+        top_items = feed.entries[:3]
+        summaries = "\n".join([f"- {entry.title}" for entry in top_items])
+        return f"Latest updates from DEPDev news:\n{summaries}"
+    except Exception as e:
+        return f"Error fetching news: {str(e)}"

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DEPDex v0</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div class="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-6 space-y-4">
+    <h2 class="text-2xl font-bold text-gray-800">🤖 DEPDex (Powered by Ollama)</h2>
+    <div id="chatbox" class="h-96 overflow-y-auto border rounded-lg p-4 bg-gray-50 space-y-2 text-sm"></div>
+    <div class="flex gap-2">
+      <input id="user-input" type="text" placeholder="Type your message..." class="flex-1 p-2 border border-gray-300 rounded-lg" onkeydown="if(event.key==='Enter') send()" />
+      <button onclick="send()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const chatbox = document.getElementById('chatbox');
+    const greeting = document.createElement('div');
+    greeting.className = 'text-left';
+    greeting.innerHTML = `<span class="inline-block bg-gray-200 text-gray-800 px-3 py-2 rounded-lg">
+      👋 Hello! I am DEPDex, the internal chatbot of the Department of Economy, Planning, and Development (DEPDev). How can I help you today?
+    </span>`;
+    chatbox.appendChild(greeting);
+
+    async function send() {
+      const input = document.getElementById('user-input');
+      const message = input.value.trim();
+      if (!message) return;
+
+      // Show user's message
+      const userBubble = document.createElement('div');
+      userBubble.className = 'text-right';
+      userBubble.innerHTML = `<span class="inline-block bg-blue-100 text-blue-900 px-3 py-2 rounded-lg">${message}</span>`;
+      chatbox.appendChild(userBubble);
+      chatbox.scrollTop = chatbox.scrollHeight;
+
+      // Create bot bubble with typing animation placeholder
+      const botBubble = document.createElement('div');
+      botBubble.className = 'text-left';
+      const span = document.createElement('span');
+      span.className = 'inline-block bg-gray-200 text-gray-800 px-3 py-2 rounded-lg';
+      botBubble.appendChild(span);
+      chatbox.appendChild(botBubble);
+      chatbox.scrollTop = chatbox.scrollHeight;
+
+      input.value = "";
+
+      const response = await fetch("http://172.17.35.22:8000/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      });
+
+      if (!response.ok) {
+        span.innerText = "⚠️ Failed to connect to backend.";
+        return;
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let buffer = "";
+
+      // Typing animation
+      let dots = 0;
+      let typingStarted = false;
+      const typingInterval = setInterval(() => {
+        if (!typingStarted) {
+          dots = (dots + 1) % 4; // cycles 0 to 3
+          span.innerText = "Typing" + ".".repeat(dots);
+          chatbox.scrollTop = chatbox.scrollHeight;
+        }
+      }, 400);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        if (!typingStarted) {
+          typingStarted = true;
+          clearInterval(typingInterval);
+          span.innerText = ""; // clear typing text immediately
+        }
+
+        buffer += decoder.decode(value, { stream: true });
+
+        let boundary = buffer.lastIndexOf("}") + 1;
+        if (boundary > 0) {
+          const chunkStr = buffer.slice(0, boundary);
+          buffer = buffer.slice(boundary);
+
+          const jsonStrings = chunkStr.split(/(?<=\})\s*(?=\{)/g);
+
+          for (const jsonStr of jsonStrings) {
+            try {
+              const json = JSON.parse(jsonStr);
+              const content = json.message?.content || "";
+              span.innerText += content;
+              chatbox.scrollTop = chatbox.scrollHeight;
+            } catch (e) {}
+          }
+        }
+      }
+
+      if (buffer.trim()) {
+        try {
+          const json = JSON.parse(buffer);
+          const content = json.message?.content || "";
+          span.innerText += content;
+          chatbox.scrollTop = chatbox.scrollHeight;
+        } catch (e) {}
+      }
+
+      clearInterval(typingInterval);
+    }
+  </script>
+</body>
+</html>
