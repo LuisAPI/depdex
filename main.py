@@ -15,8 +15,8 @@ from utils.pdf_cache import get_pdf_text_cached
 from prompts.system_prompt import get_system_prompt
 from utils.knowledge_search import search_knowledge
 
-from langchain_chroma import Chroma
-from langchain_ollama import OllamaEmbeddings
+from langchain.vectorstores import Chroma
+from langchain_community.embeddings import OllamaEmbeddings
 
 logging.basicConfig(
     filename="chat_audit.log",
