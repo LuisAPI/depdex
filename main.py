@@ -15,8 +15,8 @@ from utils.pdf_cache import get_pdf_text_cached
 from prompts.system_prompt import get_system_prompt
 from utils.knowledge_search import search_knowledge
 
-from langchain.vectorstores import Chroma
-from langchain_community.embeddings import OllamaEmbeddings
+from langchain_chroma import Chroma
+from langchain_ollama import OllamaEmbeddings
 
 logging.basicConfig(
     filename="chat_audit.log",
@@ -158,7 +158,8 @@ async def chat(req: ChatRequest, request: Request):
     def generator():
         nonlocal first_chunk_time
         try:
-            response = requests.post(OLLAMA_API, json=payload, stream=True)
+            # Add a timeout to the Ollama API call (30 seconds)
+            response = requests.post(OLLAMA_API, json=payload, stream=True, timeout=60)
             if response.status_code != 200:
                 yield f"⚠️ Ollama error {response.status_code}"
                 return
@@ -217,4 +218,5 @@ async def test():
 
 # --- Serve frontend ---
 
-app.mount("/", StaticFiles(directory=".", html=True), name="root")
+# Serve static files from /static to avoid API route conflicts
+app.mount("/static", StaticFiles(directory=".", html=True), name="static")

@@ -48,7 +48,8 @@
 
       input.value = "";
 
-      const response = await fetch("http://172.17.35.22:8000/chat", {
+      // Use relative API path to avoid CORS and static path issues
+      const response = await fetch("/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message })
