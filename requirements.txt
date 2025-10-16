@@ -9,3 +9,4 @@ langchain_chroma
 langchain_ollama
 langchain_text_splitters
 fastapi
+pillow>=10.0.1 # not directly required, pinned by Snyk to avoid a vulnerability
