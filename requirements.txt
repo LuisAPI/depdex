@@ -9,3 +9,5 @@ langchain_chroma
 langchain_ollama
 langchain_text_splitters
 fastapi
+numpy>=1.22.2 # not directly required, pinned by Snyk to avoid a vulnerability
+urllib3>=2.6.0 # not directly required, pinned by Snyk to avoid a vulnerability
