@@ -9,3 +9,4 @@ langchain_chroma
 langchain_ollama
 langchain_text_splitters
 fastapi
+wheel>=0.46.2 # not directly required, pinned by Snyk to avoid a vulnerability
